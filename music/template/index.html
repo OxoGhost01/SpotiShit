@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spotishit</title>
+</head>
+<body>
+
+<h1>Spotishit</h1>
+
+<form method="get">
+    <input type="text" name="q" placeholder="Search song" value="{{ query }}">
+    <button type="submit">Search</button>
+</form>
+
+{% if query and not tracks %}
+    <p>No previews available for this search.</p>
+{% endif %}
+
+{% for track in tracks %}
+    <div style="margin-top: 20px;">
+        <p>
+            <strong>{{ track.name }}</strong>
+            — {{ track.artists.0.name }}
+        </p>
+
+        {% if track.preview_url %}
+            <button data-preview="{{ track.preview_url }}" onclick="playPreview(this)">
+                ▶ Play Preview
+            </button>
+        {% else %}
+            <p style="color: gray;">No preview available</p>
+        {% endif %}
+    </div>
+{% endfor %}
+
+
+<audio id="player" controls style="display:none; margin-top:20px;"></audio>
+
+<script>
+function playPreview(button) {
+    const url = button.dataset.preview;
+    const player = document.getElementById("player");
+
+    if (!url) {
+        alert("No preview available for this track.");
+        return;
+    }
+
+    player.src = url;
+    player.style.display = "block";
+    player.play();
+}
+</script>
+
+
+</body>
+</html>
