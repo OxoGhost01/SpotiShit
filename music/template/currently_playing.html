@@ -3,189 +3,215 @@
 <head>
     <title>SpotiShit</title>
     <style>
-        /* Reset & body */
+        /* ========== GLOBAL ========== */
         body {
             margin: 0;
-            font-family: 'Helvetica', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: #121212;
-            color: #fff;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ========== BLURRED BACKGROUND ========== */
+        #background {
+            position: fixed;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            filter: blur(40px) brightness(0.5);
+            transform: scale(1.2);
+            z-index: -2;
+        }
+
+        #overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: -1;
+        }
+
+        /* ========== USER INFO (TOP RIGHT) ========== */
+        #user-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
             display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(30, 30, 30, 0.8);
+            padding: 10px 14px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        #user-container img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+        }
+
+        /* ========== MAIN CENTER AREA ========== */
+        #main {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            flex-direction: column;
+            text-align: center;
+            padding: 40px;
         }
 
         h1 {
             color: #1DB954;
-            margin-bottom: 20px;
             font-size: 3rem;
-        }
-
-        /* User Card */
-        #user-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
             margin-bottom: 30px;
-            background: #1e1e1e;
-            padding: 15px 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        #user-container img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-        }
-
-        /* Track Card */
+        /* ========== TRACK CARD ========== */
         #track-container {
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            width: 320px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+            width: 100%;
         }
 
         #track-container img {
-            border-radius: 10px;
-            margin-bottom: 15px;
-            width: 200px;
-            height: 200px;
-            object-fit: cover;
+            width: 280px;
+            height: 280px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
 
         #track-container strong {
-            font-size: 1.3rem;
+            font-size: 1.6rem;
         }
 
-        #track-container p {
-            margin: 8px 0;
-            font-weight: 500;
+        #track-container .artist {
+            opacity: 0.8;
+            font-size: 1.1rem;
         }
 
-        /* Progress bar */
+        /* ========== PROGRESS BAR ========== */
         #progress-container {
             width: 100%;
-            height: 12px;
-            background: #333;
-            border-radius: 6px;
-            margin-top: 15px;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
             overflow: hidden;
+            margin-top: 10px;
         }
 
         #progress-bar {
             height: 100%;
             width: 0%;
             background: #1DB954;
-            border-radius: 6px;
             transition: width 0.5s linear;
         }
 
-        /* Responsive */
-        @media (max-width: 400px) {
-            #track-container {
-                width: 90%;
-            }
-            #track-container img {
-                width: 100%;
-                height: auto;
-            }
+        #logout-btn {
+            background: transparent;
+            border: 1px solid #1DB954;
+            color: #1DB954;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
         }
+
+        #logout-btn:hover {
+            background: #1DB954;
+            color: black;
+        }
+
     </style>
 </head>
+
 <body>
 
-<h1>SpotiShit</h1>
+{% if track %}
+<div id="background" style="background-image: url('{{ track.album_image }}');"></div>
+{% endif %}
+<div id="overlay"></div>
 
+<!-- USER INFO -->
 <div id="user-container">
     {% if user %}
         {% if user.image %}
-            <img src="{{ user.image }}" alt="User profile">
+            <img src="{{ user.image }}" alt="Profile">
         {% endif %}
         <strong>{{ user.name }}</strong>
-    {% else %}
-        <p>User info not available.</p>
+        <form action="{% url 'spotify_logout' %}" method="post" style="margin:0;">
+            {% csrf_token %}
+            <button id="logout-btn" type="submit">Disconnect</button>
+        </form>
     {% endif %}
 </div>
 
-<div id="track-container">
-    {% if track %}
-        <img src="{{ track.album_image }}" alt="Album cover">
-        <strong>{{ track.name }}</strong><br>
-        {{ track.artist }}<br>
-        <p>{{ track.is_playing|yesno:"Playing...,Paused" }}</p>
-        <div id="progress-container">
-            <div id="progress-bar" style="width: {{ track.progress_percent }}%"></div>
-        </div>
-    {% else %}
-        <p>No track currently playing.</p>
-    {% endif %}
+<!-- MAIN CONTENT -->
+<div id="main">
+    <h1>SpotiShit</h1>
+
+    <div id="track-container">
+        {% if track %}
+            <img src="{{ track.album_image }}" alt="Album cover">
+            <strong>{{ track.name }}</strong>
+            <div class="artist">{{ track.artist }}</div>
+            <div>{{ track.is_playing|yesno:"Playing…,Paused" }}</div>
+
+            <div id="progress-container">
+                <div id="progress-bar" style="width: {{ track.progress_percent }}%"></div>
+            </div>
+        {% else %}
+            <p>No track currently playing.</p>
+        {% endif %}
+    </div>
 </div>
 
 <script>
-let track = null;
-let progress = 0;
-let duration = 0;
+let track = {{ track|default:'null'|safe }};
+let progress = track ? track.progress_ms : 0;
+let duration = track ? track.duration_ms : 0;
 
-// Fetch track info from Django
 async function fetchTrack() {
-    try {
-        const response = await fetch("{% url 'currently_playing_json' %}");
-        if (!response.ok) return;
+    const response = await fetch("{% url 'currently_playing_json' %}");
+    if (!response.ok) return;
 
-        const data = await response.json();
-        const container = document.getElementById("track-container");
+    const data = await response.json();
+    if (!data.track) return;
 
-        if (!data.track) {
-            container.innerHTML = '<p>No track currently playing.</p>';
-            track = null;
-            return;
-        }
+    track = data.track;
+    progress = track.progress_ms;
+    duration = track.duration_ms;
 
-        track = data.track;
-        progress = track.progress_ms;
-        duration = track.duration_ms;
+    document.getElementById("track-container").innerHTML = `
+        <img src="${track.album_image}">
+        <strong>${track.name}</strong>
+        <div class="artist">${track.artist}</div>
+        <div>${track.is_playing ? 'Playing…' : 'Paused'}</div>
+        <div id="progress-container">
+            <div id="progress-bar" style="width:${(progress/duration)*100}%"></div>
+        </div>
+    `;
 
-        const progressPercent = (progress / duration) * 100;
-
-        container.innerHTML = `
-            <img src="${track.album_image}" width="200"><br>
-            <strong>${track.name}</strong><br>
-            ${track.artist}<br>
-            <p>${track.is_playing ? 'Playing...' : 'Paused'}</p>
-            <div id="progress-container">
-                <div id="progress-bar" style="width:${progressPercent}%"></div>
-            </div>
-        `;
-    } catch (err) {
-        console.error("Error fetching track:", err);
-    }
+    document.getElementById("background").style.backgroundImage =
+        `url('${track.album_image}')`;
 }
 
-// Update the progress bar smoothly every second
 function updateProgressBar() {
     if (!track || !track.is_playing) return;
-    progress += 1000; // increment 1 second
+    progress += 1000;
     if (progress > duration) progress = duration;
 
     const bar = document.getElementById("progress-bar");
-    if (bar) {
-        const percent = (progress / duration) * 100;
-        bar.style.width = percent + "%";
-    }
+    if (bar) bar.style.width = ((progress / duration) * 100) + "%";
 }
 
-// Initial fetch
 fetchTrack();
-
-// Poll every 5 seconds for latest track info
 setInterval(fetchTrack, 5000);
-
-// Smooth progress update every 1 second
 setInterval(updateProgressBar, 1000);
 </script>
 

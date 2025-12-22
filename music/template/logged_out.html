@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SpotiShit — Disconnected</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #121212;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Background glow */
+        #background {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #1DB95433, transparent 60%);
+            filter: blur(80px);
+            z-index: -2;
+        }
+
+        #overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: -1;
+        }
+
+        /* Center card */
+        #card {
+            text-align: center;
+            padding: 60px 50px;
+            background: rgba(30,30,30,0.85);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            max-width: 420px;
+        }
+
+        h1 {
+            color: #1DB954;
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+        }
+
+        p {
+            opacity: 0.85;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        a {
+            display: inline-block;
+            text-decoration: none;
+            background: #1DB954;
+            color: black;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(29,185,84,0.4);
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="background"></div>
+<div id="overlay"></div>
+
+<div id="card">
+    <h1>SpotiShit</h1>
+    <p>You are disconnected from Spotify.</p>
+    <a href="{% url 'spotify_login' %}">Reconnect Spotify</a>
+</div>
+
+</body>
+</html>
