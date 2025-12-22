@@ -14,6 +14,7 @@ def spotify_login(request):
         "response_type": "code",
         "redirect_uri": settings.SPOTIFY_REDIRECT_URI,
         "scope": scope,
+        "prompt": "login"
     })
     url = f"https://accounts.spotify.com/authorize?{params}"
     return redirect(url)
@@ -126,4 +127,13 @@ def currently_playing_json(request):
     }
 
     return JsonResponse({"track": track_info})
+
+
+def spotify_logout(request):
+    request.session.flush()
+    return redirect("logged_out")
+
+def logged_out(request):
+    return render(request, "logged_out.html")
+
 
